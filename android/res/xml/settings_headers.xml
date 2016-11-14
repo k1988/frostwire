@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml), Marcelina Knitter (@marcelinkaaa)
+ * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <header
+        android:fragment="com.frostwire.android.gui.activities.SettingsActivity$DownloadsSettingsFragment"
+        android:key="frostwire.prefs.download.preference_category"
+        android:persistent="false"
+        android:title="@string/downloads" />
+
+    <header
+        android:fragment="com.frostwire.android.gui.activities.SettingsActivity$SearchSettingsFragment"
+        android:key="frostwire.prefs.search.preference_category"
+        android:persistent="false"
+        android:title="@string/search_preferences">
+        <!-- Arbitrary key/value pairs can be included with a header as
+             arguments to its fragment. -->
+        <!--<extra android:name="someKey" android:value="someHeaderValue" />-->
+    </header>
+
+    <header
+        android:key="frostwire.prefs.offers.buy_no_ads"
+        android:summary="@string/remove_ads_description"
+        android:title="@string/remove_ads">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.frostwire.android.gui.activities.BuyActivity"
+            android:targetPackage="com.frostwire.android" />
+    </header>
+
+    <header
+        android:fragment="com.frostwire.android.gui.activities.SettingsActivity$NotificationsOtherSettingsFragment"
+        android:key="frostwire.prefs.other.preference_category"
+        android:persistent="false"
+        android:title="@string/notifications_other_settings" />
+
+    <header
+        android:key="frostwire.prefs.show_about"
+        android:title="@string/activity_about">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.frostwire.android.gui.activities.AboutActivity"
+            android:targetPackage="com.frostwire.android" />
+    </header>
+
+</preference-headers>

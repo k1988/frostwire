@@ -18,7 +18,6 @@
 
 package com.frostwire.android.gui.activities;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -30,6 +29,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,8 +67,10 @@ import com.frostwire.uxstats.UXAction;
 import com.frostwire.uxstats.UXStats;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,13 +100,22 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.application_preferences);
 
-        getListView().setPadding(20, 0, 20, 0);
+        LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+        Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
+        root.addView(bar, 0); // insert at top
+        bar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        getListView().setPadding(0, 0, 0, 0);
         getListView().setDivider(new ColorDrawable(this.getResources().getColor(R.color.basic_gray_dark_solid)));
         getListView().setDividerHeight(1);
 
-        hideActionBarIcon(getActionBar());
+//        hideActionBarIcon(getActionBar());
 
         setupComponents();
 
@@ -121,14 +134,114 @@ public class SettingsActivity extends PreferenceActivity {
         updateConnectSwitch();
     }
 
-    private void hideActionBarIcon(ActionBar bar) {
-        if (bar != null) {
-            bar.setDisplayHomeAsUpEnabled(true);
-            bar.setDisplayShowHomeEnabled(false);
-            bar.setDisplayShowTitleEnabled(true);
-            bar.setIcon(android.R.color.transparent);
+    /**
+     * Populate the activity with the top-level headers.
+     */
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.settings_headers, target);
+
+        getListView().setPadding(10, 20, 30, 40);
+//        getListView().setPaddingRelative(40, 30, 20, 10);
+    }
+
+    @Override
+    protected boolean isValidFragment(String fragmentName)
+    {
+        ArrayList<Header> target = new ArrayList<>();
+        loadHeadersFromResource(R.xml.settings_headers, target);
+        for (Header h : target) {
+            if (fragmentName.equals(h.fragment)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * This fragment shows the preferences for the Download Settings header.
+     */
+    public static class DownloadsSettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Make sure default values are applied.  In a real app, you would
+            // want this in a shared function that is used to retrieve the
+            // SharedPreferences wherever they are needed.
+//            PreferenceManager.setDefaultValues(getActivity(),
+//                    R.xml.advanced_preferences, false);
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.downlods_settings);
+        }
+
+    }
+
+
+    /**
+     * This fragment shows the preferences for the Search Settings header.
+     */
+    public static class SearchSettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Can retrieve arguments from headers XML.
+//            Log.i("args", "Arguments: " + getArguments());
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.search_settings);
         }
     }
+
+    /**
+     * This fragment shows the preferences for the Notifications Settings header.
+     */
+    public static class NotificationsOtherSettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Make sure default values are applied.  In a real app, you would
+            // want this in a shared function that is used to retrieve the
+            // SharedPreferences wherever they are needed.
+//            PreferenceManager.setDefaultValues(getActivity(),
+//                    R.xml.advanced_preferences, false);
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.notifications_other_settings);
+        }
+
+    }
+
+    /**
+     * This fragment contains a second-level set of preference that you
+     * can get to by tapping an item in the first preferences fragment.
+     */
+    public static class TorrentSettingsFragmentInner extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Can retrieve arguments from preference XML.
+            Log.i("args", "Arguments: " + getArguments());
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.notifications_other_settings);
+        }
+    }
+
+
+
+
+
+//    private void hideActionBarIcon(ActionBar bar) {
+//        if (bar != null) {
+//            bar.setDisplayHomeAsUpEnabled(true);
+//            bar.setDisplayShowHomeEnabled(false);
+//            bar.setDisplayShowTitleEnabled(true);
+//            bar.setIcon(android.R.color.transparent);
+//        }
+//    }
 
     private void setupComponents() {
         setupConnectSwitch();
@@ -409,26 +522,26 @@ public class SettingsActivity extends PreferenceActivity {
         getSearchEnginePreferences(inactiveSearchPreferences, activeSearchEnginePreferences);
 
             // Click listener for the search engines. Checks or unchecks the SelectAll checkbox
-        final Preference.OnPreferenceClickListener searchEngineClickListener = new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                TwoStatePreference cbPreference = (TwoStatePreference) preference;
-                ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
-
-                selectAll.setClickListenerEnabled(false);
-                if (!cbPreference.isChecked()) {
-                    selectAll.setChecked(false);
-                    if (areAllEnginesChecked(false, activeSearchEnginePreferences)) {
-                        cbPreference.setChecked(true); // always keep one checked
-                    }
-                } else {
-                    boolean allChecked = areAllEnginesChecked(true, activeSearchEnginePreferences);
-                    selectAll.setChecked(allChecked);
-                }
-                selectAll.setClickListenerEnabled(true);
-                return true;
-            }
-        };
+//        final Preference.OnPreferenceClickListener searchEngineClickListener = new Preference.OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                TwoStatePreference cbPreference = (TwoStatePreference) preference;
+//                ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
+//
+//                selectAll.setClickListenerEnabled(false);
+//                if (!cbPreference.isChecked()) {
+//                    selectAll.setChecked(false);
+//                    if (areAllEnginesChecked(false, activeSearchEnginePreferences)) {
+//                        cbPreference.setChecked(true); // always keep one checked
+//                    }
+//                } else {
+//                    boolean allChecked = areAllEnginesChecked(true, activeSearchEnginePreferences);
+//                    selectAll.setChecked(allChecked);
+//                }
+//                selectAll.setClickListenerEnabled(true);
+//                return true;
+//            }
+//        };
 
         // Hide inactive search engines and setup click listeners to interact with Select All.
         if (searchEnginesScreen != null) {
@@ -437,13 +550,13 @@ public class SettingsActivity extends PreferenceActivity {
             }
         }
 
-        for (CheckBoxPreference preference : activeSearchEnginePreferences.keySet()) {
-            preference.setOnPreferenceClickListener(searchEngineClickListener);
+//        for (CheckBoxPreference preference : activeSearchEnginePreferences.keySet()) {
+//            preference.setOnPreferenceClickListener(searchEngineClickListener);
         }
 
-        ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
-        selectAll.setSearchEnginePreferences(activeSearchEnginePreferences);
-    }
+//        ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
+//        selectAll.setSearchEnginePreferences(activeSearchEnginePreferences);
+//    }
 
     private boolean areAllEnginesChecked(boolean checked, Map<CheckBoxPreference, SearchEngine> activeSearchEnginePreferences) {
         final Collection<CheckBoxPreference> preferences = activeSearchEnginePreferences.keySet();
@@ -487,6 +600,7 @@ public class SettingsActivity extends PreferenceActivity {
         preference.setOnPreferenceChangeListener(onPreferenceChangeListener);
     }
 
+
     private void setupConnectSwitch() {
         SwitchPreference preference = (SwitchPreference) findPreference("frostwire.prefs.internal.connect_disconnect");
         if (preference != null) {
@@ -525,10 +639,10 @@ public class SettingsActivity extends PreferenceActivity {
         String kitkatKey = "frostwire.prefs.storage.path";
         String lollipopKey = "frostwire.prefs.storage.path_asf";
 
-        PreferenceCategory category = (PreferenceCategory) findPreference("frostwire.prefs.general");
+        PreferenceScreen category = (PreferenceScreen) findPreference("frostwire.prefs.download.preference_category");
 
         if (AndroidPlatform.saf()) {
-            // make sure this won't be saved for kitkat
+            // make sure this won't be saved for  kitkat
             Preference p = findPreference(kitkatKey);
             if (p != null) {
                 category.removePreference(p);
@@ -712,7 +826,7 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             });
 
-            hideActionBarIcon(dialog.getActionBar());
+//            hideActionBarIcon(dialog.getActionBar());
             View homeButton = dialog.findViewById(android.R.id.home);
 
             if (homeButton != null) {
