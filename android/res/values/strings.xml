@@ -649,5 +649,6 @@
     <string name="search_preferences">Search Preferences</string>
     <string name="frostwire_sticker_and_more">FrostWire stickers and more</string>
     <string name="donate_your_time">Donate your time</string>
+    <string name="changelog">Changelog</string>
 
 </resources>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
- * Created by Angel Leon (@gubatron), Alden Torres (aldenml), and
- * Marcelina Knitter (@marcelinkaaa)
+ * Created by Angel Leon (@gubatron), Alden Torres (aldenml), Marcelina Knitter (@marcelinkaaa)
  * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -139,7 +138,6 @@
     <style name="PreferenceListSeparator">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:colorBackground">@color/warning_red</item>
     </style>
 
     <style name="PreferencesListView">
