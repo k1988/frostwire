@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:frostwire="http://schemas.android.com/apk/res-auto"
     android:key="frostwire.prefs.search.preference_category"

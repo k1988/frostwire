@@ -100,6 +100,7 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.settings_main_mobile);
 
         LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
@@ -137,29 +138,29 @@ public class SettingsActivity extends PreferenceActivity {
     /**
      * Populate the activity with the top-level headers.
      */
-    @Override
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.settings_headers, target);
+//    @Override
+//    public void onBuildHeaders(List<Header> target) {
+//        loadHeadersFromResource(R.xml.settings_main_tablet, target);
+//
+//        getListView().setPadding(10, 20, 30, 40);
+////        getListView().setPaddingRelative(40, 30, 20, 10);
+//    }
 
-        getListView().setPadding(10, 20, 30, 40);
-//        getListView().setPaddingRelative(40, 30, 20, 10);
-    }
-
-    @Override
-    protected boolean isValidFragment(String fragmentName)
-    {
-        ArrayList<Header> target = new ArrayList<>();
-        loadHeadersFromResource(R.xml.settings_headers, target);
-        for (Header h : target) {
-            if (fragmentName.equals(h.fragment)) return true;
-        }
-        return false;
-    }
+//    @Override
+//    protected boolean isValidFragment(String fragmentName)
+//    {
+//        ArrayList<Header> target = new ArrayList<>();
+//        loadHeadersFromResource(R.xml.settings_main_tablet, target);
+//        for (Header h : target) {
+//            if (fragmentName.equals(h.fragment)) return true;
+//        }
+//        return false;
+//    }
 
     /**
      * This fragment shows the preferences for the Download Settings header.
      */
-    public static class DownloadsSettingsFragment extends PreferenceFragment {
+    public static class GeneralSettingsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -171,7 +172,7 @@ public class SettingsActivity extends PreferenceActivity {
 //                    R.xml.advanced_preferences, false);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.downlods_settings);
+            addPreferencesFromResource(R.xml.general_settings);
         }
 
     }
@@ -194,9 +195,25 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     /**
+     * This fragment shows the preferences for the Torrent Settings header.
+     */
+    public static class TorrentSettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Can retrieve arguments from preference XML.
+            Log.i("args", "Arguments: " + getArguments());
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.torrent_settings);
+        }
+    }
+
+    /**
      * This fragment shows the preferences for the Notifications Settings header.
      */
-    public static class NotificationsOtherSettingsFragment extends PreferenceFragment {
+    public static class InterfaceNotificationsSettingsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -208,30 +225,10 @@ public class SettingsActivity extends PreferenceActivity {
 //                    R.xml.advanced_preferences, false);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.notifications_other_settings);
+            addPreferencesFromResource(R.xml.interface_notifications_settings);
         }
 
     }
-
-    /**
-     * This fragment contains a second-level set of preference that you
-     * can get to by tapping an item in the first preferences fragment.
-     */
-    public static class TorrentSettingsFragmentInner extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Can retrieve arguments from preference XML.
-            Log.i("args", "Arguments: " + getArguments());
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.notifications_other_settings);
-        }
-    }
-
-
-
 
 
 //    private void hideActionBarIcon(ActionBar bar) {
@@ -521,27 +518,27 @@ public class SettingsActivity extends PreferenceActivity {
         final Map<CheckBoxPreference, SearchEngine> activeSearchEnginePreferences = new HashMap<>();
         getSearchEnginePreferences(inactiveSearchPreferences, activeSearchEnginePreferences);
 
-            // Click listener for the search engines. Checks or unchecks the SelectAll checkbox
-//        final Preference.OnPreferenceClickListener searchEngineClickListener = new Preference.OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//                TwoStatePreference cbPreference = (TwoStatePreference) preference;
-//                ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
-//
-//                selectAll.setClickListenerEnabled(false);
-//                if (!cbPreference.isChecked()) {
-//                    selectAll.setChecked(false);
-//                    if (areAllEnginesChecked(false, activeSearchEnginePreferences)) {
-//                        cbPreference.setChecked(true); // always keep one checked
-//                    }
-//                } else {
-//                    boolean allChecked = areAllEnginesChecked(true, activeSearchEnginePreferences);
-//                    selectAll.setChecked(allChecked);
-//                }
-//                selectAll.setClickListenerEnabled(true);
-//                return true;
-//            }
-//        };
+         //   Click listener for the search engines. Checks or unchecks the SelectAll checkbox
+        final Preference.OnPreferenceClickListener searchEngineClickListener = new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                TwoStatePreference cbPreference = (TwoStatePreference) preference;
+                ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
+
+                selectAll.setClickListenerEnabled(false);
+                if (!cbPreference.isChecked()) {
+                    selectAll.setChecked(false);
+                    if (areAllEnginesChecked(false, activeSearchEnginePreferences)) {
+                        cbPreference.setChecked(true); // always keep one checked
+                    }
+                } else {
+                    boolean allChecked = areAllEnginesChecked(true, activeSearchEnginePreferences);
+                    selectAll.setChecked(allChecked);
+                }
+                selectAll.setClickListenerEnabled(true);
+                return true;
+            }
+        };
 
         // Hide inactive search engines and setup click listeners to interact with Select All.
         if (searchEnginesScreen != null) {
@@ -550,13 +547,13 @@ public class SettingsActivity extends PreferenceActivity {
             }
         }
 
-//        for (CheckBoxPreference preference : activeSearchEnginePreferences.keySet()) {
-//            preference.setOnPreferenceClickListener(searchEngineClickListener);
-        }
+        for (CheckBoxPreference preference : activeSearchEnginePreferences.keySet()) {
+            preference.setOnPreferenceClickListener(searchEngineClickListener);
+}
 
-//        ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
-//        selectAll.setSearchEnginePreferences(activeSearchEnginePreferences);
-//    }
+        ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
+        selectAll.setSearchEnginePreferences(activeSearchEnginePreferences);
+    }
 
     private boolean areAllEnginesChecked(boolean checked, Map<CheckBoxPreference, SearchEngine> activeSearchEnginePreferences) {
         final Collection<CheckBoxPreference> preferences = activeSearchEnginePreferences.keySet();
@@ -639,8 +636,8 @@ public class SettingsActivity extends PreferenceActivity {
         String kitkatKey = "frostwire.prefs.storage.path";
         String lollipopKey = "frostwire.prefs.storage.path_asf";
 
-        PreferenceScreen category = (PreferenceScreen) findPreference("frostwire.prefs.download.preference_category");
-
+//        PreferenceScreen category = (PreferenceScreen) findPreference("frostwire.prefs.download.preference_category");
+        PreferenceCategory category = (PreferenceCategory) findPreference("frostwire.prefs.general");
         if (AndroidPlatform.saf()) {
             // make sure this won't be saved for  kitkat
             Preference p = findPreference(kitkatKey);
