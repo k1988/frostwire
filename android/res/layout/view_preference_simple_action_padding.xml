@@ -21,44 +21,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/basic_gray_dark"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="14dp"
-        android:paddingRight="10dp"
-        android:orientation="horizontal"
         android:minHeight="?android:attr/listPreferredItemHeight"
-        android:gravity="center_vertical">
+        android:paddingBottom="10dp"
+        android:paddingTop="12dp"
+        android:paddingLeft="14dp"
+        android:paddingRight="11dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
             android:layout_weight="1"
             android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/view_preference_checkbox_header_title"
+                android:id="@android:id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:maxLines="2"
-                android:text="@string/dummy_title"
-                android:textSize="@dimen/text_medium"
                 android:textColor="@color/app_text_primary"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_medium" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@android:id/title"
+                android:layout_below="@android:id/title"
+                android:maxLines="3"
+                android:textSize="@dimen/text_small" />
 
-        <CheckBox
-        android:id="@+id/view_preference_checkbox_header_checkbox"
-        style="@style/PreferencesCheckboxStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <!-- Preference should place its actual preference widget here. -->
+        <LinearLayout
+            android:id="@+android:id/widget_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical" />
 
     </LinearLayout>
 
@@ -66,5 +73,4 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@drawable/layout_divider" />
-
 </LinearLayout>

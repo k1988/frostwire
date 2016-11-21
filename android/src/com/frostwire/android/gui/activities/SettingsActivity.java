@@ -116,8 +116,6 @@ public class SettingsActivity extends PreferenceActivity {
         getListView().setDivider(new ColorDrawable(this.getResources().getColor(R.color.basic_gray_dark_solid)));
         getListView().setDividerHeight(1);
 
-//        hideActionBarIcon(getActionBar());
-
         setupComponents();
 
         String action = getIntent().getAction();
@@ -136,8 +134,10 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     /**
-     * Populate the activity with the top-level headers.
+     * Populate the activity with the top-level headers. Used for tablets and larger screen devices.
      */
+
+    //TODO: provide a way for the settings_main_mobile and settings_main_tablet to switch depending on device used. Below headers are used together with the tablet layout.
 //    @Override
 //    public void onBuildHeaders(List<Header> target) {
 //        loadHeadersFromResource(R.xml.settings_main_tablet, target);
@@ -157,6 +157,7 @@ public class SettingsActivity extends PreferenceActivity {
 //        return false;
 //    }
 
+
     /**
      * This fragment shows the preferences for the Download Settings header.
      */
@@ -175,6 +176,7 @@ public class SettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.general_settings);
         }
 
+        //TODO: add appropriate code for settings contained in the fragment
     }
 
 
@@ -191,6 +193,8 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.search_settings);
+
+            //TODO: add appropriate code for settings contained in the fragment
         }
     }
 
@@ -207,6 +211,8 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.torrent_settings);
+
+            //TODO: add appropriate code for settings contained in the fragment
         }
     }
 
@@ -226,19 +232,12 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.interface_notifications_settings);
+
+            //TODO: add appropriate code for settings contained in the fragment
         }
 
     }
 
-
-//    private void hideActionBarIcon(ActionBar bar) {
-//        if (bar != null) {
-//            bar.setDisplayHomeAsUpEnabled(true);
-//            bar.setDisplayShowHomeEnabled(false);
-//            bar.setDisplayShowTitleEnabled(true);
-//            bar.setIcon(android.R.color.transparent);
-//        }
-//    }
 
     private void setupComponents() {
         setupConnectSwitch();
@@ -362,7 +361,6 @@ public class SettingsActivity extends PreferenceActivity {
     private void setupOtherOptions() {
         setupPermanentStatusNotificationOption();
         setupHapticFeedback();
-        setupSupportFrostWireOption();
     }
 
     private void setupHapticFeedback() {
@@ -377,36 +375,6 @@ public class SettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
-        }
-    }
-
-    private void setupSupportFrostWireOption() {
-        final CheckBoxPreference preference = (CheckBoxPreference) findPreference(Constants.PREF_KEY_GUI_SUPPORT_FROSTWIRE);
-        if (!Constants.IS_BASIC_AND_DEBUG &&
-            (Constants.IS_GOOGLE_PLAY_DISTRIBUTION || Products.disabledAds(PlayStore.getInstance()))) {
-            removeSupportFrostWirePreference(preference);
-        }
-        else if (preference != null){
-            preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    if(!((CheckBoxPreference) preference).isChecked()) {
-                        UIUtils.openURL(preference.getContext(), Constants.FROSTWIRE_GIVE_URL + "plus-unsupport-fw");
-                    }
-                    return true;
-                }
-            });
-        }
-    }
-
-    private void removeSupportFrostWirePreference(CheckBoxPreference preference) {
-        if (preference == null) {
-            return;
-        }
-        preference.setOnPreferenceClickListener(null);
-        PreferenceScreen category = (PreferenceScreen) findPreference(Constants.PREF_KEY_OTHER_PREFERENCE_CATEGORY);
-        if (category != null && preference != null) {
-            category.removePreference(preference);
         }
     }
 
