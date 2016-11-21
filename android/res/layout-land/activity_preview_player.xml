@@ -50,7 +50,7 @@
     <View   android:id="@+id/activity_preview_player_divider"
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@drawable/layout_divider_1_gray"/>
+            android:background="@drawable/layout_divider"/>
 
     <LinearLayout
             android:id="@+id/activity_preview_player_right_side"
