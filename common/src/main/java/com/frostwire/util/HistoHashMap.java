@@ -1,4 +1,4 @@
-package com.frostwire.gui.library;
+package com.frostwire.util;
 
 import java.util.Arrays;
 import java.util.Comparator;

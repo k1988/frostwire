@@ -18,8 +18,6 @@
 
 package com.frostwire.search;
 
-import android.support.annotation.NonNull;
-
 import com.frostwire.licenses.License;
 import com.frostwire.licenses.Licenses;
 import com.frostwire.regex.Matcher;
@@ -70,12 +68,18 @@ public class KeywordFilter {
         return pipeline;
     }
 
-    public boolean accept(@NonNull final String lowercaseHaystack) {
+    public boolean accept(final String lowercaseHaystack) {
+        if (lowercaseHaystack == null) {
+            return false;
+        }
         boolean found = lowercaseHaystack.contains(keyword);
         return ((inclusive && found) || (!inclusive && !found));
     }
 
-    private static String getSearchResultHaystack(@NonNull SearchResult sr) {
+    private static String getSearchResultHaystack(SearchResult sr) {
+        if (sr == null) {
+            return "";
+        }
         StringBuilder queryString = new StringBuilder();
         queryString.append(sr.getDisplayName());
         queryString.append(" ");
@@ -94,17 +98,18 @@ public class KeywordFilter {
         return queryString.toString().toLowerCase();
     }
 
-    public static boolean passesFilterPipeline(@NonNull final SearchResult sr, @NonNull final List<KeywordFilter> filterPipeline) {
+    public static boolean passesFilterPipeline(final SearchResult sr, final List<KeywordFilter> filterPipeline) {
         boolean accepted = true;
         String haystack = getSearchResultHaystack(sr);
         Iterator<KeywordFilter> it = filterPipeline.iterator();
         while (accepted && it.hasNext()) {
             KeywordFilter filter = it.next();
-            accepted &= filter.accept(haystack);
+            accepted = filter.accept(haystack);
         }
         return accepted;
     }
 
+    @SuppressWarnings("unused")
     private static class KeywordFilterTests {
         private static final FileSearchResult fsr = new FileSearchResult() {
             @Override
@@ -157,13 +162,13 @@ public class KeywordFilter {
         // I tried with compileTest '...junit' on build.gradle but failed.
         // just needed to get simple tests going.
 
-        public static boolean assertTrue(String description, boolean result) {
+        static boolean assertTrue(String description, boolean result) {
             PrintStream ops = result ? System.out : System.err;
             ops.println((result ? "PASSED" : "FAILED") + " [" + description + "]");
             return result;
         }
 
-        public static boolean assertFalse(String description, boolean result) {
+        static boolean assertFalse(String description, boolean result) {
             PrintStream ops = !result ? System.out : System.err;
             ops.println((!result ? "PASSED" : "FAILED") + " [" + description + "]");
             return !result;
@@ -197,10 +202,7 @@ public class KeywordFilter {
             failPipeline.add(MITfilter);
             failPipeline.add(notthereFilter);
             failPipeline.add(athensFilter); // this one shouldn't even be checked as it should short circuit
-            if (!assertFalse("inclusion pipeline fail test", KeywordFilter.passesFilterPipeline(fsr, failPipeline))) {
-                return false;
-            }
-            return true;
+            return assertFalse("inclusion pipeline fail test", KeywordFilter.passesFilterPipeline(fsr, failPipeline));
         }
 
         private static boolean testExclusiveFilters() {
@@ -223,8 +225,8 @@ public class KeywordFilter {
             List<KeywordFilter> acceptablePipeline = new LinkedList<>();
             acceptablePipeline.add(notthereFilter);
             acceptablePipeline.add(frostwireFilter);
-            if (!assertTrue("exclusion pipeline test", passesFilterPipeline(fsr,acceptablePipeline))) {
-               return false;
+            if (!assertTrue("exclusion pipeline test", passesFilterPipeline(fsr, acceptablePipeline))) {
+                return false;
             }
 
             KeywordFilter athensFilter = new KeywordFilter(false, "athens");
@@ -237,10 +239,7 @@ public class KeywordFilter {
             failPipeline.add(athensFilter);
             failPipeline.add(MITfilter);
             failPipeline.add(notthereFilter);
-            if (!assertFalse("exclusion pipeline fail test", passesFilterPipeline(fsr, failPipeline))) {
-                return false;
-            }
-            return true;
+            return assertFalse("exclusion pipeline fail test", passesFilterPipeline(fsr, failPipeline));
         }
 
         private static boolean testMixedFilters() {
@@ -252,10 +251,7 @@ public class KeywordFilter {
             mixedPipeline.add(MITfilter);
             mixedPipeline.add(frostwireExclusionFilter);
             mixedPipeline.add(athensFilter);
-            if (!assertTrue("mixed pipeline test", passesFilterPipeline(fsr, mixedPipeline))) {
-                return false;
-            }
-            return true;
+            return assertTrue("mixed pipeline test", passesFilterPipeline(fsr, mixedPipeline));
         }
 
         private static boolean testParseKeywordFilters() {
