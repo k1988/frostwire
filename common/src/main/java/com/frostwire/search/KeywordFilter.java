@@ -99,6 +99,9 @@ public class KeywordFilter {
     }
 
     public static boolean passesFilterPipeline(final SearchResult sr, final List<KeywordFilter> filterPipeline) {
+        if (filterPipeline == null || filterPipeline.isEmpty()) {
+            return true;
+        }
         boolean accepted = true;
         String haystack = getSearchResultHaystack(sr);
         Iterator<KeywordFilter> it = filterPipeline.iterator();

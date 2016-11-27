@@ -271,6 +271,14 @@ public abstract class SearchResultListAdapter extends AbstractListAdapter<Search
         this.keywordFiltersPipeline.addAll(keywordFiltersPipeline);
     }
 
+    public void addKeywordFilter(KeywordFilter kf) {
+        this.keywordFiltersPipeline.add(kf);
+    }
+
+    public void removeKeywordFilter(KeywordFilter kf) {
+        this.keywordFiltersPipeline.remove(kf);
+    }
+
     private static class OnLinkClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
