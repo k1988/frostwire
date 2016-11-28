@@ -30,7 +30,6 @@ import android.os.Bundle;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,10 +66,8 @@ import com.frostwire.uxstats.UXAction;
 import com.frostwire.uxstats.UXStats;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -100,9 +97,9 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.settings_main_mobile);
+        addPreferencesFromResource(R.xml.settings_main);
 
-        LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+        LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
         root.addView(bar, 0); // insert at top
         bar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -132,112 +129,6 @@ public class SettingsActivity extends PreferenceActivity {
 
         updateConnectSwitch();
     }
-
-    /**
-     * Populate the activity with the top-level headers. Used for tablets and larger screen devices.
-     */
-
-    //TODO: provide a way for the settings_main_mobile and settings_main_tablet to switch depending on device used. Below headers are used together with the tablet layout.
-//    @Override
-//    public void onBuildHeaders(List<Header> target) {
-//        loadHeadersFromResource(R.xml.settings_main_tablet, target);
-//
-//        getListView().setPadding(10, 20, 30, 40);
-////        getListView().setPaddingRelative(40, 30, 20, 10);
-//    }
-
-//    @Override
-//    protected boolean isValidFragment(String fragmentName)
-//    {
-//        ArrayList<Header> target = new ArrayList<>();
-//        loadHeadersFromResource(R.xml.settings_main_tablet, target);
-//        for (Header h : target) {
-//            if (fragmentName.equals(h.fragment)) return true;
-//        }
-//        return false;
-//    }
-
-
-    /**
-     * This fragment shows the preferences for the Download Settings header.
-     */
-    public static class GeneralSettingsFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Make sure default values are applied.  In a real app, you would
-            // want this in a shared function that is used to retrieve the
-            // SharedPreferences wherever they are needed.
-//            PreferenceManager.setDefaultValues(getActivity(),
-//                    R.xml.advanced_preferences, false);
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.general_settings);
-        }
-
-        //TODO: add appropriate code for settings contained in the fragment
-    }
-
-
-    /**
-     * This fragment shows the preferences for the Search Settings header.
-     */
-    public static class SearchSettingsFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Can retrieve arguments from headers XML.
-//            Log.i("args", "Arguments: " + getArguments());
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.search_settings);
-
-            //TODO: add appropriate code for settings contained in the fragment
-        }
-    }
-
-    /**
-     * This fragment shows the preferences for the Torrent Settings header.
-     */
-    public static class TorrentSettingsFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Can retrieve arguments from preference XML.
-            Log.i("args", "Arguments: " + getArguments());
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.torrent_settings);
-
-            //TODO: add appropriate code for settings contained in the fragment
-        }
-    }
-
-    /**
-     * This fragment shows the preferences for the Notifications Settings header.
-     */
-    public static class InterfaceNotificationsSettingsFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Make sure default values are applied.  In a real app, you would
-            // want this in a shared function that is used to retrieve the
-            // SharedPreferences wherever they are needed.
-//            PreferenceManager.setDefaultValues(getActivity(),
-//                    R.xml.advanced_preferences, false);
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.interface_notifications_settings);
-
-            //TODO: add appropriate code for settings contained in the fragment
-        }
-
-    }
-
 
     private void setupComponents() {
         setupConnectSwitch();
@@ -357,7 +248,6 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-
     private void setupOtherOptions() {
         setupPermanentStatusNotificationOption();
         setupHapticFeedback();
@@ -463,7 +353,7 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
-    private void getSearchEnginePreferences(Map<CheckBoxPreference,SearchEngine> inactiveSearchEnginePreferences, Map<CheckBoxPreference,SearchEngine> activeSearchEnginePreferences) {
+    private void getSearchEnginePreferences(Map<CheckBoxPreference, SearchEngine> inactiveSearchEnginePreferences, Map<CheckBoxPreference, SearchEngine> activeSearchEnginePreferences) {
         // make sure we start empty
         inactiveSearchEnginePreferences.clear();
         activeSearchEnginePreferences.clear();
@@ -486,7 +376,7 @@ public class SettingsActivity extends PreferenceActivity {
         final Map<CheckBoxPreference, SearchEngine> activeSearchEnginePreferences = new HashMap<>();
         getSearchEnginePreferences(inactiveSearchPreferences, activeSearchEnginePreferences);
 
-         //   Click listener for the search engines. Checks or unchecks the SelectAll checkbox
+        //   Click listener for the search engines. Checks or unchecks the SelectAll checkbox
         final Preference.OnPreferenceClickListener searchEngineClickListener = new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -517,7 +407,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         for (CheckBoxPreference preference : activeSearchEnginePreferences.keySet()) {
             preference.setOnPreferenceClickListener(searchEngineClickListener);
-}
+        }
 
         ToggleAllSearchEnginesPreference selectAll = (ToggleAllSearchEnginesPreference) findPreference("frostwire.prefs.search.preference_category.select_all");
         selectAll.setSearchEnginePreferences(activeSearchEnginePreferences);
@@ -642,10 +532,10 @@ public class SettingsActivity extends PreferenceActivity {
             final Collection<Product> purchasedProducts = Products.listEnabled(playStore, Products.DISABLE_ADS_FEATURE);
             if (purchaseTimestamp == 0 && purchasedProducts != null && purchasedProducts.size() > 0) {
                 initRemoveAdsSummaryWithPurchaseInfo(p, purchasedProducts);
-                //otherwise, a BuyActivity intent has been configured on application_preferences.xml
+                //otherwise, a BuyActivity intent has been configured on settings_main.xml
             } else if (purchaseTimestamp > 0 &&
-                    (System.currentTimeMillis()-purchaseTimestamp) < 30000) {
-                p.setSummary(getString(R.string.processing_payment)+"...");
+                    (System.currentTimeMillis() - purchaseTimestamp) < 30000) {
+                p.setSummary(getString(R.string.processing_payment) + "...");
                 p.setOnPreferenceClickListener(null);
             } else {
                 p.setSummary(R.string.remove_ads_description);
@@ -699,9 +589,8 @@ public class SettingsActivity extends PreferenceActivity {
                 data.hasExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP)) {
             // We (onActivityResult) are invoked before onResume()
             removeAdsPurchaseTime = data.getLongExtra(BuyActivity.EXTRA_KEY_PURCHASE_TIMESTAMP, 0);
-            LOG.info("onActivityResult: User just purchased something. removeAdsPurchaseTime="+removeAdsPurchaseTime);
-        }
-        else {
+            LOG.info("onActivityResult: User just purchased something. removeAdsPurchaseTime=" + removeAdsPurchaseTime);
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -764,15 +653,7 @@ public class SettingsActivity extends PreferenceActivity {
         return r;
     }
 
-    /**
-     * HOW TO HIDE A NESTED PreferenceScreen ActionBar icon.
-     * The nested PreferenceScreens are basically Dialog instances,
-     * if we want to hide the icon on those, we need to get their dialog.getActionBar()
-     * instance, hide the icon, and then we need to set the click listeners for the
-     * dialog's laid out views. Here we do all that.
-     *
-     * @param preferenceScreen
-     */
+
     private void initializePreferenceScreen(PreferenceScreen preferenceScreen) {
         if (preferenceScreen == null) {
             return;
@@ -791,7 +672,6 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             });
 
-//            hideActionBarIcon(dialog.getActionBar());
             View homeButton = dialog.findViewById(android.R.id.home);
 
             if (homeButton != null) {
