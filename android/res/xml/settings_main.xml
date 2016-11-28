@@ -41,10 +41,6 @@
             android:title="@string/storage_preference_title">
             <intent android:action="android.intent.action.OPEN_DOCUMENT_TREE" />
         </Preference>
-        <Preference
-            android:key="frostwire.prefs.offers.buy_no_ads"
-            android:summary="@string/remove_ads_description"
-            android:title="@string/remove_ads" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/search_torrent_settings">
@@ -236,5 +232,10 @@
                 android:targetClass="com.frostwire.android.gui.activities.AboutActivity"
                 android:targetPackage="com.frostwire.android" />
         </Preference>
+        <Preference
+            android:key="frostwire.prefs.offers.buy_no_ads"
+            android:summary="@string/remove_ads_description"
+            android:title="@string/remove_ads"
+            android:layout="@layout/view_preference_buy_ads"/>
     </PreferenceCategory>
 </PreferenceScreen>
