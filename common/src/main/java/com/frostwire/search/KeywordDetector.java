@@ -29,12 +29,17 @@ import java.util.Set;
  * @author aldenml
  */
 public final class KeywordDetector {
-    private final HistoHashMap<String> histogram;
-
     private static final Set<String> inconsequentials = new HashSet<>();
+    private final HistoHashMap<String> histogram;
+    private KeywordDetectorListener listener;
+    private int numSearchesProcessed;
 
     public KeywordDetector() {
         histogram = new HistoHashMap<>();
+    }
+
+    public void setKeywordDetectorListener(KeywordDetectorListener listener) {
+        this.listener = listener;
     }
 
     public void addSearchTerms(String terms) {
@@ -51,9 +56,28 @@ public final class KeywordDetector {
                 histogram.update(token);
             }
         }
+
+        numSearchesProcessed++;
+
+        if (listener != null) {
+            listener.onSearchReceived(numSearchesProcessed);
+        }
     }
 
-    public Map.Entry<String, Integer>[] getHistogram() {
+    public void requestHistogramUpdate() {
+        Runnable r = new Runnable() {
+
+            @Override
+            public void run() {
+                Map.Entry<String, Integer>[] histogram = getHistogram();
+                if (listener != null) {
+                    listener.onHistogramUpdate(histogram);
+                }
+            }
+        };
+    }
+
+    private Map.Entry<String, Integer>[] getHistogram() {
         return histogram.histogram();
     }
 
@@ -66,6 +90,14 @@ public final class KeywordDetector {
         inconsequentials.add("that");
         inconsequentials.add("a");
         inconsequentials.add("this");
+        inconsequentials.add("at");
+        inconsequentials.add("on");
+        inconsequentials.add("in");
         // TODO: Add more here as we start testing and getting noise
+    }
+
+    public interface KeywordDetectorListener {
+        void onSearchReceived(int numSearchesProcessed);
+        void onHistogramUpdate(Map.Entry<String, Integer>[] histogram);
     }
 }

@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class HistoHashMap<K> {
-    private final Map<K,Integer> map = new HashMap<K, Integer>();
+    private final Map<K,Integer> map = new HashMap<>();
 
     public int update(K key) {
         int r = 1;
@@ -34,5 +34,9 @@ public class HistoHashMap<K> {
             }
         });
         return array;
+    }
+
+    public int getKeyCount() {
+        return map.size();
     }
 }
