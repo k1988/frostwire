@@ -26,7 +26,6 @@ import android.widget.RelativeLayout;
 
 import com.frostwire.android.R;
 import com.frostwire.search.KeywordDetector;
-import com.frostwire.search.KeywordFilter;
 import com.frostwire.util.Ref;
 
 import java.lang.ref.WeakReference;
@@ -58,7 +57,7 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        View.inflate(getContext(), R.layout.view_keyword_filter, this);
+        View.inflate(getContext(), R.layout.view_keyword_detector, this);
         invalidate();
         initComponents();
     }

@@ -22,17 +22,17 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/view_keyword_filter_background">
+    android:background="@drawable/view_keyword_detector_background">
 
     <LinearLayout
-        android:id="@+id/view_keyword_filter_keyword_container"
+        android:id="@+id/view_keyword_detector_keyword_container"
         android:layout_weight="1.0"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"/>
     <!-- TODO: add proper icons -->
     <ImageButton
-        android:id="@+id/view_keyword_filter_filters_button"
+        android:id="@+id/view_keyword_detector_filters_button"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:scaleType="fitCenter"
@@ -40,7 +40,7 @@
         android:background="@null"/>
 
     <ImageButton
-        android:id="@+id/view_keyword_filter_close_button"
+        android:id="@+id/view_keyword_detector_close_button"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:scaleType="fitCenter"
