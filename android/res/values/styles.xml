@@ -111,7 +111,7 @@
 
     <!-- Preferences -->
 
-    <style name="Preferences" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Preferences" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/basic_blue</item>
         <item name="colorPrimaryDark">@color/app_dark_blue</item>
         <item name="colorAccent">@color/basic_blue_darker_highlight</item>
@@ -120,6 +120,7 @@
         <item name="android:listSeparatorTextViewStyle">@style/PreferenceListSeparator</item>
         <item name="android:textColorPrimary">@color/app_text_primary</item>
         <item name="android:windowBackground">@color/basic_white</item>
+        <item name="android:windowActionBar">false</item>
         <item name="android:listViewStyle">@style/PreferencesListView</item>
         <item name="android:listDivider">@drawable/layout_divider</item>
         <item name="android:listSelector">@drawable/listview_item_press_background_selector</item>
@@ -158,6 +159,9 @@
         <item name="android:maxHeight">16dip</item>
     </style>
 
+
+    <style name="AboutActivity" parent="Preferences">
+    </style>
     <!-- SlideMenu begin -->
 
     <style name="SlideMenu"></style>
