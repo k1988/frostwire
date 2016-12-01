@@ -26,13 +26,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,7 +39,6 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 import com.frostwire.android.AndroidPlatform;
 import com.frostwire.android.R;
@@ -105,9 +101,10 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.settings_main);
 
         LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
-        Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
-        root.addView(bar, 0); // insert at top
-        bar.setNavigationOnClickListener(new View.OnClickListener() {
+        Toolbar settingsToolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.app_toolbar, root, false);
+        root.addView(settingsToolbar, 0); // insert at top
+        settingsToolbar.setTitle(R.string.settings);
+        settingsToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -663,16 +660,16 @@ public class SettingsActivity extends PreferenceActivity {
     public void setUpNestedScreen(PreferenceScreen preferenceScreen) {
         final Dialog dialog = preferenceScreen.getDialog();
 
-        Toolbar bar;
+        Toolbar nestedSettingsToolbar;
 
         LinearLayout root = (LinearLayout) dialog.findViewById(android.R.id.list).getParent();
-        bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
+        nestedSettingsToolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.app_toolbar, root, false);
         // insert at top
-        root.addView(bar, 0);
+        root.addView(nestedSettingsToolbar, 0);
 
-        bar.setTitle(preferenceScreen.getTitle());
+        nestedSettingsToolbar.setTitle(preferenceScreen.getTitle());
 
-        bar.setNavigationOnClickListener(new View.OnClickListener() {
+        nestedSettingsToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();

@@ -119,7 +119,7 @@
         <activity android:name="com.frostwire.android.gui.activities.BuyActivity"
                   android:label="@string/remove_ads"/>
         <activity android:name="com.frostwire.android.gui.activities.AboutActivity"
-                  android:label="@string/about"/>
+                  android:label="@string/about"  android:theme="@style/AboutActivity"/>
         <activity android:name="com.frostwire.android.gui.activities.PreviewPlayerActivity"
                   android:label="@string/playing"
                   android:configChanges="orientation|screenSize"/>

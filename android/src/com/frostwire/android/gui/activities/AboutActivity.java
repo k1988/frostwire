@@ -18,30 +18,28 @@
 
 package com.frostwire.android.gui.activities;
 
-import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import com.frostwire.android.R;
 import com.frostwire.android.gui.util.UIUtils;
-import com.frostwire.android.gui.views.AbstractActivity;
 
-public class AboutActivity extends AbstractActivity {
+public class AboutActivity extends AppCompatActivity {
 
-    public AboutActivity() {
-        super(R.layout.activity_about);
-    }
 
     @Override
-    protected void initComponents(Bundle savedInstanceState) {
-        ActionBar bar = getActionBar();
-        if (bar != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setIcon(android.R.color.transparent);
-        }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_about);
+        Toolbar aboutToolbar = (Toolbar) findViewById(R.id.app_toolbar);
+        setSupportActionBar(aboutToolbar);
+        getSupportActionBar().setTitle(R.string.about);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return UIUtils.finishOnHomeOptionItemSelected(this, item);
     }
+
 }

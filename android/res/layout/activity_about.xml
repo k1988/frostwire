@@ -24,7 +24,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               android:background="@color/body_background_white">
-
+    <include layout="@layout/app_toolbar"/>
     <fragment
         android:name="com.frostwire.android.gui.fragments.AboutFragment"
         android:id="@+id/fragment_about"
