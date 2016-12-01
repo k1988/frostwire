@@ -26,10 +26,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +42,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 import com.frostwire.android.AndroidPlatform;
 import com.frostwire.android.R;
@@ -92,6 +96,7 @@ public class SettingsActivity extends PreferenceActivity {
         if (currentPreferenceKey != null) {
             onPreferenceTreeClick(getPreferenceScreen(), getPreferenceManager().findPreference(currentPreferenceKey));
         }
+
     }
 
     @Override
@@ -130,6 +135,7 @@ public class SettingsActivity extends PreferenceActivity {
         updateConnectSwitch();
     }
 
+
     private void setupComponents() {
         setupConnectSwitch();
         setupStorageOption();
@@ -150,6 +156,7 @@ public class SettingsActivity extends PreferenceActivity {
         setupTorrentMaxUploads(e);
         setupTorrentMaxTotalConnections(e);
         setupTorrentMaxPeers(e);
+
     }
 
     private void setupTorrentMaxDownloadSpeed(final BTEngine e) {
@@ -645,14 +652,33 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 
-        boolean r = super.onPreferenceTreeClick(preferenceScreen, preference);
+        // If the user has clicked on a preference screen, set up the screen
         if (preference instanceof PreferenceScreen) {
-            initializePreferenceScreen((PreferenceScreen) preference);
-            currentPreferenceKey = preference.getKey();
+            setUpNestedScreen((PreferenceScreen) preference);
         }
-        return r;
+
+        return false;
     }
 
+    public void setUpNestedScreen(PreferenceScreen preferenceScreen) {
+        final Dialog dialog = preferenceScreen.getDialog();
+
+        Toolbar bar;
+
+        LinearLayout root = (LinearLayout) dialog.findViewById(android.R.id.list).getParent();
+        bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
+        // insert at top
+        root.addView(bar, 0);
+
+        bar.setTitle(preferenceScreen.getTitle());
+
+        bar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
 
     private void initializePreferenceScreen(PreferenceScreen preferenceScreen) {
         if (preferenceScreen == null) {
