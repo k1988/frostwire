@@ -38,8 +38,12 @@ import java.util.Map;
  */
 
 public final class KeywordDetectorView extends RelativeLayout implements KeywordDetector.KeywordDetectorListener {
-    private WeakReference<KeywordDetector> detectorRef;
 
+    private static final String CATEGORY_FILE_NAMES = "category_file_names";
+    private static final String CATEGORY_FILE_EXTS = "category_file_exts";
+    private static final String CATEGORY_SEARCH_SOURCES = "category_search_sources";
+
+    private WeakReference<KeywordDetector> detectorRef;
     private int lastNumberOfSearchesForHistogramRequest;
 
     public KeywordDetectorView(Context context, AttributeSet attrs) {
@@ -66,12 +70,12 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         // TODO
     }
 
-    private void updateKeyword(String keyword, int appearances) {
+    private void updateKeyword(String category, String keyword, int appearances) {
         // update our internal view and placement depending on
         // how many appearances we have.
     }
 
-    private void removeKeyword(String keyword) {
+    private void removeKeyword(String category, String keyword) {
         // a keyword detector should invoke this on us
         // or we could have a reference to the keyword detector of the
         // ongoing search, and after we invoke it's histogram
@@ -80,7 +84,7 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         // KeywordLabelView.
     }
 
-    private void onKeywordTouched(String keyword) {
+    private void onKeywordTouched(String category, String keyword) {
         // idea: keywords here could have 3 states.
         // inclusive (positive)
         // exclusive (negative)
@@ -97,18 +101,34 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
                 KeywordDetector keywordDetector = this.detectorRef.get();
                 keywordDetector.setKeywordDetectorListener(this);
                 lastNumberOfSearchesForHistogramRequest = numSearchesProcessed;
-                keywordDetector.requestHistogramUpdate();
+
+                keywordDetector.requestHistogramUpdate(CATEGORY_FILE_NAMES);
+                keywordDetector.requestHistogramUpdate(CATEGORY_FILE_EXTS);
+                keywordDetector.requestHistogramUpdate(CATEGORY_SEARCH_SOURCES);
             }
         }
     }
 
     @Override
-    public void onHistogramUpdate(Map.Entry<String, Integer>[] histogram) {
-        // here we should go over the keywords we already know
-        // and update the counts on the textviews
-        // if there's a keyword we haven't seen, we should add it
-        // and we should also re-arrange the keyword labels depending
-        // on their count
-        // we should have a limit of keywords here
+    public void onHistogramUpdate(String category, Map.Entry<String, Integer>[] histogram) {
+        if (category.equals(CATEGORY_FILE_NAMES)) {
+            onFilenamesUpdate(histogram);
+        } else if (category.equals(CATEGORY_FILE_NAMES)) {
+            onFileExtensionsUpdate(histogram);
+        } else if (category.equals(CATEGORY_SEARCH_SOURCES)) {
+            onSearchSourcesUpdate(histogram);
+        }
+    }
+
+    private void onSearchSourcesUpdate(Map.Entry<String, Integer>[] histogram) {
+        // TODO: Update search sources tags
+    }
+
+    private void onFileExtensionsUpdate(Map.Entry<String, Integer>[] histogram) {
+        // TODO: Update file extensions tags
+    }
+
+    private void onFilenamesUpdate(Map.Entry<String, Integer>[] histogram) {
+        // TODO: Update file name tags
     }
 }
