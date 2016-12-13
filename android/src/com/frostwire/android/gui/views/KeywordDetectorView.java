@@ -26,36 +26,24 @@ import android.widget.RelativeLayout;
 
 import com.frostwire.android.R;
 import com.frostwire.search.KeywordDetector;
-import com.frostwire.util.Ref;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 
 /**
  * Created on 11/29/16.
+ *
  * @author gubatron
  * @author aldenml
  */
 
 public final class KeywordDetectorView extends RelativeLayout implements KeywordDetector.KeywordDetectorListener {
 
-    private static final String CATEGORY_FILE_NAMES = "category_file_names";
-    private static final String CATEGORY_FILE_EXTS = "category_file_exts";
-    private static final String CATEGORY_SEARCH_SOURCES = "category_search_sources";
-
-    private WeakReference<KeywordDetector> detectorRef;
     private int lastNumberOfSearchesForHistogramRequest;
 
     public KeywordDetectorView(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ProductCardView, 0, 0);
-
-    }
-
-    public void setKeywordDetector(KeywordDetector detector) {
-        if (detector != null ) {
-            detectorRef = Ref.weak(detector);
-        }
+        // use XML attributes if we specify any.
     }
 
     @Override
@@ -70,12 +58,12 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         // TODO
     }
 
-    private void updateKeyword(String category, String keyword, int appearances) {
+    private void updateKeyword(KeywordDetector.Feature feature, String keyword, int appearances) {
         // update our internal view and placement depending on
         // how many appearances we have.
     }
 
-    private void removeKeyword(String category, String keyword) {
+    private void removeKeyword(KeywordDetector.Feature feature, String keyword) {
         // a keyword detector should invoke this on us
         // or we could have a reference to the keyword detector of the
         // ongoing search, and after we invoke it's histogram
@@ -84,38 +72,33 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         // KeywordLabelView.
     }
 
-    private void onKeywordTouched(String category, String keyword) {
+    private void onKeywordTouched(KeywordDetector.Feature feature, String keyword) {
         // idea: keywords here could have 3 states.
         // inclusive (positive)
         // exclusive (negative)
         // neutral (not in current keyword pipeline)
-
         // depending on the new state we
     }
 
     @Override
-    public void onSearchReceived(int numSearchesProcessed) {
+    public void onSearchReceived(KeywordDetector detector, int numSearchesProcessed) {
         // for now we'll request a histogram update every 5 searches
         if (numSearchesProcessed > lastNumberOfSearchesForHistogramRequest && numSearchesProcessed % 5 == 0) {
-            if (Ref.alive(this.detectorRef)) {
-                KeywordDetector keywordDetector = this.detectorRef.get();
-                keywordDetector.setKeywordDetectorListener(this);
-                lastNumberOfSearchesForHistogramRequest = numSearchesProcessed;
-
-                keywordDetector.requestHistogramUpdate(CATEGORY_FILE_NAMES);
-                keywordDetector.requestHistogramUpdate(CATEGORY_FILE_EXTS);
-                keywordDetector.requestHistogramUpdate(CATEGORY_SEARCH_SOURCES);
-            }
+            detector.setKeywordDetectorListener(this);
+            lastNumberOfSearchesForHistogramRequest = numSearchesProcessed;
+            detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_NAME);
+            detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_EXTENSION);
+            detector.requestHistogramUpdate(KeywordDetector.Feature.SEARCH_SOURCE);
         }
     }
 
     @Override
-    public void onHistogramUpdate(String category, Map.Entry<String, Integer>[] histogram) {
-        if (category.equals(CATEGORY_FILE_NAMES)) {
+    public void onHistogramUpdate(KeywordDetector detector, KeywordDetector.Feature feature, Map.Entry<String, Integer>[] histogram) {
+        if (feature.equals(KeywordDetector.Feature.FILE_NAME)) {
             onFilenamesUpdate(histogram);
-        } else if (category.equals(CATEGORY_FILE_NAMES)) {
+        } else if (feature.equals(KeywordDetector.Feature.FILE_EXTENSION)) {
             onFileExtensionsUpdate(histogram);
-        } else if (category.equals(CATEGORY_SEARCH_SOURCES)) {
+        } else if (feature.equals(KeywordDetector.Feature.SEARCH_SOURCE)) {
             onSearchSourcesUpdate(histogram);
         }
     }

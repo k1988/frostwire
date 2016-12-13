@@ -60,6 +60,7 @@ import com.frostwire.android.gui.util.UIUtils;
 import com.frostwire.android.gui.views.AbstractDialog.OnDialogClickListener;
 import com.frostwire.android.gui.views.AbstractFragment;
 import com.frostwire.android.gui.views.ClickAdapter;
+import com.frostwire.android.gui.views.KeywordDetectorView;
 import com.frostwire.android.gui.views.PromotionsView;
 import com.frostwire.android.gui.views.RichNotification;
 import com.frostwire.android.gui.views.RichNotificationActionLink;
@@ -72,6 +73,7 @@ import com.frostwire.frostclick.SlideList;
 import com.frostwire.frostclick.TorrentPromotionSearchResult;
 import com.frostwire.search.FileSearchResult;
 import com.frostwire.search.HttpSearchResult;
+import com.frostwire.search.KeywordDetector;
 import com.frostwire.search.SearchError;
 import com.frostwire.search.SearchListener;
 import com.frostwire.search.SearchResult;
@@ -88,8 +90,10 @@ import com.frostwire.uxstats.UXAction;
 import com.frostwire.uxstats.UXStats;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,6 +117,8 @@ public final class SearchFragment extends AbstractFragment implements
     private final FileTypeCounter fileTypeCounter;
     private final SparseArray<Byte> toTheRightOf = new SparseArray<>(6);
     private final SparseArray<Byte> toTheLeftOf = new SparseArray<>(6);
+    private final Map<Integer, KeywordDetector> keywordDetectors;
+    private KeywordDetectorView keywordDetectorView;
 
     public SearchFragment() {
         super(R.layout.fragment_search);
@@ -130,6 +136,7 @@ public final class SearchFragment extends AbstractFragment implements
         toTheLeftOf.put(Constants.FILE_TYPE_APPLICATIONS, Constants.FILE_TYPE_PICTURES);
         toTheLeftOf.put(Constants.FILE_TYPE_DOCUMENTS, Constants.FILE_TYPE_APPLICATIONS);
         toTheLeftOf.put(Constants.FILE_TYPE_TORRENTS, Constants.FILE_TYPE_DOCUMENTS);
+        keywordDetectors = new HashMap<>();
     }
 
     @Override
@@ -228,6 +235,8 @@ public final class SearchFragment extends AbstractFragment implements
             }
         });
         list = findView(view, R.id.fragment_search_list);
+        keywordDetectorView = findView(view, R.id.fragment_search_keyword_detector_view);
+
         SwipeLayout swipe = findView(view, R.id.fragment_search_swipe);
         swipe.setOnSwipeListener(new SwipeLayout.OnSwipeListener() {
             @Override
@@ -272,19 +281,7 @@ public final class SearchFragment extends AbstractFragment implements
             LocalSearchEngine.instance().setListener(new SearchListener() {
                 @Override
                 public void onResults(long token, final List<? extends SearchResult> results) {
-                    FilteredSearchResults fsr = adapter.filter((List<SearchResult>) results);
-                    final List<SearchResult> filteredList = fsr.filtered;
-
-                    fileTypeCounter.add(fsr);
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.addResults(results, filteredList);
-                            showSearchView(getView());
-                            refreshFileTypeCounters(true);
-                        }
-                    });
+                    onSearchResults(results);
                 }
 
                 @Override
@@ -311,6 +308,39 @@ public final class SearchFragment extends AbstractFragment implements
                     DirectionDetectorScrollListener.createOnScrollListener(
                             createScrollDirectionListener(),
                             Engine.instance().getThreadPool()));
+        }
+    }
+
+    private void onSearchResults(final List<? extends SearchResult> results) {
+        FilteredSearchResults fsr = adapter.filter((List<SearchResult>) results);
+        final List<SearchResult> filteredList = fsr.filtered;
+
+        fileTypeCounter.add(fsr);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.addResults(results, filteredList);
+                showSearchView(getView());
+                refreshFileTypeCounters(true);
+                updateKeywordDetector(adapter.getFileType(), results);
+            }
+        });
+    }
+
+    private void updateKeywordDetector(int fileType, List<? extends SearchResult> results) {
+        KeywordDetector keywordDetector = keywordDetectors.get(fileType);
+        if (keywordDetector == null) {
+            keywordDetector = new KeywordDetector();
+            keywordDetectors.put(fileType, keywordDetector);
+        }
+
+        keywordDetectorView.setKeywordDetector(keywordDetector);
+        keywordDetector.setKeywordDetectorListener(keywordDetectorView);
+        // perhaps unnecessary
+
+        for (SearchResult sr : results) {
+            keywordDetector.addSearchTerms(KeywordDetectorView.SearchResultFeature.SEARCH_SOURCE.toString(), sr.getSource());
+            //keywordDetector.addSearchTerms();
         }
     }
 
@@ -594,6 +624,7 @@ public final class SearchFragment extends AbstractFragment implements
         }
 
         public void onSearch(View v, String query, int mediaTypeId) {
+            fragment.resetKeywordDetector(mediaTypeId);
             if (query.contains("://m.soundcloud.com/") || query.contains("://soundcloud.com/")) {
                 fragment.cancelSearch();
                 new DownloadSoundcloudFromUrlTask(fragment.getActivity(), query).execute();
@@ -617,6 +648,10 @@ public final class SearchFragment extends AbstractFragment implements
         public void onClear(View v) {
             fragment.cancelSearch();
         }
+    }
+
+    private void resetKeywordDetector(int mediaType) {
+        keywordDetectors.put(mediaType, new KeywordDetector());
     }
 
     private static class LoadSlidesTask extends AsyncTask<Void, Void, List<Slide>> {
