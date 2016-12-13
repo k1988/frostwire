@@ -334,12 +334,12 @@ public final class SearchFragment extends AbstractFragment implements
             keywordDetectors.put(fileType, keywordDetector);
         }
 
-        keywordDetectorView.setKeywordDetector(keywordDetector);
         keywordDetector.setKeywordDetectorListener(keywordDetectorView);
         // perhaps unnecessary
 
         for (SearchResult sr : results) {
-            keywordDetector.addSearchTerms(KeywordDetectorView.SearchResultFeature.SEARCH_SOURCE.toString(), sr.getSource());
+            keywordDetector.addSearchTerms(KeywordDetector.Feature.SEARCH_SOURCE, sr.getSource());
+            //keywordDetector.addSearchTerms(KeywordDetector.Feature.FILE_EXTENSION, sr);
             //keywordDetector.addSearchTerms();
         }
     }
