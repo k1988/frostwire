@@ -1,6 +1,6 @@
 /*
  * Created by Angel Leon (@gubatron), Alden Torres (aldenml)
- * Copyright (c) 2011-2016, FrostWire(R). All rights reserved.
+ * Copyright (c) 2011-2017, FrostWire(R). All rights reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,20 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Created on 11/26/2016
+ *
  * @author gubatron
  * @author aldenml
  */
 public final class KeywordDetector {
+
+    public enum Feature {
+        FILE_NAME,
+        FILE_EXTENSION,
+        SEARCH_SOURCE
+    }
+
     private static final Set<String> inconsequentials = new HashSet<>();
-    private final Map<String, HistoHashMap<String>> histograms;
+    private final Map<Feature, HistoHashMap<String>> histograms;
     private final ExecutorService threadpool;
     private KeywordDetectorListener listener;
     private int numSearchesProcessed;
@@ -51,59 +59,53 @@ public final class KeywordDetector {
         this.listener = listener;
     }
 
-    public void addSearchTerms(String category, String terms) {
+    public void addSearchTerms(Feature feature, String terms) {
         // tokenize
         String[] pre_tokens = terms.split("\\s");
-
-        if (pre_tokens == null || pre_tokens.length == 0) {
+        if (pre_tokens.length == 0) {
             return;
         }
-
         // count consequential terms only
         for (String token : pre_tokens) {
             if (!inconsequentials.contains(token)) {
-                updateHistogram(category, token);
+                updateHistogram(feature, token);
             }
         }
-
         numSearchesProcessed++;
-
         if (listener != null) {
-            listener.onSearchReceived(numSearchesProcessed);
+            listener.onSearchReceived(this, numSearchesProcessed);
         }
     }
 
-    private void updateHistogram(String category, String token) {
-        HistoHashMap<String> histogram = histograms.get(category);
+    private void updateHistogram(Feature feature, String token) {
+        HistoHashMap<String> histogram = histograms.get(feature);
         if (histogram != null) {
             histogram.update(token);
         }
     }
 
-    public void requestHistogramUpdate(String category) {
-        HistoHashMap<String> histogram = histograms.get(category);
+    public void requestHistogramUpdate(Feature feature) {
+        HistoHashMap<String> histogram = histograms.get(feature);
         if (histogram != null) {
-            requestHistogramUpdate(category, histogram);
+            requestHistogramUpdate(feature, histogram);
         }
 
     }
 
-    public void requestHistogramUpdate(final String category, final HistoHashMap<String> histogram) {
+    public void requestHistogramUpdate(final Feature feature, final HistoHashMap<String> histogram) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 if (listener != null) {
-                    listener.onHistogramUpdate(category, histogram.histogram());
+                    listener.onHistogramUpdate(KeywordDetector.this, feature, histogram.histogram());
                 }
             }
         };
-
         if (threadpool != null) {
             threadpool.submit(r);
         } else {
             new Thread(r, "Keyword-Detector::requestHistogramUpdate()").start();
         }
-
     }
 
     static {
@@ -122,7 +124,8 @@ public final class KeywordDetector {
     }
 
     public interface KeywordDetectorListener {
-        void onSearchReceived(int numSearchesProcessed);
-        void onHistogramUpdate(String category, Map.Entry<String, Integer>[] histogram);
+        void onSearchReceived(KeywordDetector detector, int numSearchesProcessed);
+
+        void onHistogramUpdate(KeywordDetector detector, Feature feature, Map.Entry<String, Integer>[] histogram);
     }
 }
