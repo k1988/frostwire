@@ -21,6 +21,7 @@ package com.frostwire.android.gui.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -28,6 +29,10 @@ import android.widget.LinearLayout;
 import com.frostwire.android.R;
 
 /**
+ * @author grzesiekrzaca
+ * @author gubatron
+ * @author aldenml
+ *
  * Used to connect preference UI state with it's background
  * If not used in a checkbox preference will work as normal LinearLayout
  */
@@ -39,8 +44,8 @@ public class PreferenceSlaveLinearLayout extends LinearLayout {
 
     public PreferenceSlaveLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        checkedColor = context.getResources().getDrawable(R.color.selected_search_background);
-        unCheckedColor = context.getResources().getDrawable(R.color.basic_white);
+        checkedColor = ContextCompat.getDrawable(context, R.color.selected_search_background);
+        unCheckedColor = ContextCompat.getDrawable(context, R.color.basic_white);
     }
 
     @Override
