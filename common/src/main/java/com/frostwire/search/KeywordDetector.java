@@ -40,7 +40,7 @@ public final class KeywordDetector {
         SEARCH_SOURCE
     }
 
-    private static final Set<String> inconsequentials = new HashSet<>();
+    private static final Set<String> stopWords = new HashSet<>();
     private final Map<Feature, HistoHashMap<String>> histograms;
     private final ExecutorService threadpool;
     private KeywordDetectorListener listener;
@@ -68,7 +68,7 @@ public final class KeywordDetector {
         }
         // count consequential terms only
         for (String token : pre_tokens) {
-            if (!inconsequentials.contains(token)) {
+            if (!stopWords.contains(token)) {
                 updateHistogram(feature, token);
             }
         }
@@ -118,18 +118,17 @@ public final class KeywordDetector {
         }
     }
 
+    private static void feedStopWords(String ... words) {
+        for (String w : words) {
+            stopWords.add(w);
+        }
+    }
+
     static {
         // english
-        inconsequentials.add("to");
-        inconsequentials.add("the");
-        inconsequentials.add("of");
-        inconsequentials.add("and");
-        inconsequentials.add("that");
-        inconsequentials.add("a");
-        inconsequentials.add("this");
-        inconsequentials.add("at");
-        inconsequentials.add("on");
-        inconsequentials.add("in");
+        feedStopWords("a", "an", "and", "are", "as", "at", "be", "by", "for");
+        feedStopWords("from", "has", "he", "in", "is", "it", "its", "of", "on");
+        feedStopWords("that", "the", "to", "that", "this");
         // TODO: Add more here as we start testing and getting noise
     }
 
