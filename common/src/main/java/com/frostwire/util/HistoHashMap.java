@@ -10,6 +10,11 @@ import java.util.Set;
 public class HistoHashMap<K> {
     private final Map<K,Integer> map = new HashMap<>();
 
+    /**
+     * Cheap operation
+     * @param key
+     * @return
+     */
     public int update(K key) {
         int r = 1;
         if (map.containsKey(key)) {
@@ -22,7 +27,11 @@ public class HistoHashMap<K> {
     public Integer get(K key) {
         return map.get(key);
     }
-    
+
+    /**
+     * Returns the inner map as a sorted Entry array. Expensive operation.
+     * @return
+     */
     public Entry<K,Integer>[] histogram() {
         Set<Entry<K, Integer>> entrySet = map.entrySet();
         @SuppressWarnings("unchecked")
@@ -38,5 +47,9 @@ public class HistoHashMap<K> {
 
     public int getKeyCount() {
         return map.size();
+    }
+
+    public void reset() {
+        map.clear();
     }
 }

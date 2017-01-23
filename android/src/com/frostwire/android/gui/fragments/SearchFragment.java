@@ -89,6 +89,8 @@ import com.frostwire.util.http.HttpClient;
 import com.frostwire.uxstats.UXAction;
 import com.frostwire.uxstats.UXStats;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -333,14 +335,21 @@ public final class SearchFragment extends AbstractFragment implements
             keywordDetector = new KeywordDetector();
             keywordDetectors.put(fileType, keywordDetector);
         }
-
-        keywordDetector.setKeywordDetectorListener(keywordDetectorView);
-        // perhaps unnecessary
-
+        if (keywordDetectorView != null) {
+            keywordDetector.setKeywordDetectorListener(keywordDetectorView);
+        }
         for (SearchResult sr : results) {
             keywordDetector.addSearchTerms(KeywordDetector.Feature.SEARCH_SOURCE, sr.getSource());
-            //keywordDetector.addSearchTerms(KeywordDetector.Feature.FILE_EXTENSION, sr);
-            //keywordDetector.addSearchTerms();
+            if (sr instanceof FileSearchResult) {
+                String fileName = ((FileSearchResult) sr).getFilename();
+                String ext = FilenameUtils.getExtension(fileName);
+                if (fileName != null && !fileName.isEmpty()) {
+                    keywordDetector.addSearchTerms(KeywordDetector.Feature.FILE_NAME, fileName);
+                }
+                if (ext != null && !ext.isEmpty()) {
+                    keywordDetector.addSearchTerms(KeywordDetector.Feature.FILE_EXTENSION, FilenameUtils.getExtension(fileName));
+                }
+            }
         }
     }
 
@@ -651,7 +660,10 @@ public final class SearchFragment extends AbstractFragment implements
     }
 
     private void resetKeywordDetector(int mediaType) {
-        keywordDetectors.put(mediaType, new KeywordDetector());
+        KeywordDetector keywordDetector = keywordDetectors.get(mediaType);
+        if (keywordDetector != null) {
+            keywordDetector.reset();
+        }
     }
 
     private static class LoadSlidesTask extends AsyncTask<Void, Void, List<Slide>> {

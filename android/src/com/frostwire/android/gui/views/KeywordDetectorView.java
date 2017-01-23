@@ -20,6 +20,8 @@ package com.frostwire.android.gui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -93,14 +95,19 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     }
 
     @Override
-    public void onHistogramUpdate(KeywordDetector detector, KeywordDetector.Feature feature, Map.Entry<String, Integer>[] histogram) {
-        if (feature.equals(KeywordDetector.Feature.FILE_NAME)) {
-            onFilenamesUpdate(histogram);
-        } else if (feature.equals(KeywordDetector.Feature.FILE_EXTENSION)) {
-            onFileExtensionsUpdate(histogram);
-        } else if (feature.equals(KeywordDetector.Feature.SEARCH_SOURCE)) {
-            onSearchSourcesUpdate(histogram);
-        }
+    public void onHistogramUpdate(final KeywordDetector detector, final KeywordDetector.Feature feature, final Map.Entry<String, Integer>[] histogram) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (feature.equals(KeywordDetector.Feature.FILE_NAME)) {
+                    onFilenamesUpdate(histogram);
+                } else if (feature.equals(KeywordDetector.Feature.FILE_EXTENSION)) {
+                    onFileExtensionsUpdate(histogram);
+                } else if (feature.equals(KeywordDetector.Feature.SEARCH_SOURCE)) {
+                    onSearchSourcesUpdate(histogram);
+                }
+            }
+        });
     }
 
     private void onSearchSourcesUpdate(Map.Entry<String, Integer>[] histogram) {

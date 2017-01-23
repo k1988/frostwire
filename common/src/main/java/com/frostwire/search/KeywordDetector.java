@@ -21,6 +21,7 @@ import com.frostwire.util.HistoHashMap;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -85,19 +86,19 @@ public final class KeywordDetector {
     }
 
     public void requestHistogramUpdate(Feature feature) {
-        HistoHashMap<String> histogram = histograms.get(feature);
-        if (histogram != null) {
-            requestHistogramUpdate(feature, histogram);
+        HistoHashMap<String> histoHashMap = histograms.get(feature);
+        if (histoHashMap != null) {
+            requestHistogramUpdate(feature, histoHashMap);
         }
 
     }
 
-    public void requestHistogramUpdate(final Feature feature, final HistoHashMap<String> histogram) {
+    public void requestHistogramUpdate(final Feature feature, final HistoHashMap<String> histoHashMap) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 if (listener != null) {
-                    listener.onHistogramUpdate(KeywordDetector.this, feature, histogram.histogram());
+                    listener.onHistogramUpdate(KeywordDetector.this, feature, histoHashMap.histogram());
                 }
             }
         };
@@ -105,6 +106,15 @@ public final class KeywordDetector {
             threadpool.submit(r);
         } else {
             new Thread(r, "Keyword-Detector::requestHistogramUpdate()").start();
+        }
+    }
+
+    public void reset() {
+        if (histograms != null && !histograms.isEmpty()) {
+            Iterator<HistoHashMap<String>> histoHashMapIterator = histograms.values().iterator();
+            while (histoHashMapIterator.hasNext()) {
+                histoHashMapIterator.next().reset();
+            }
         }
     }
 
@@ -126,6 +136,6 @@ public final class KeywordDetector {
     public interface KeywordDetectorListener {
         void onSearchReceived(KeywordDetector detector, int numSearchesProcessed);
 
-        void onHistogramUpdate(KeywordDetector detector, Feature feature, Map.Entry<String, Integer>[] histogram);
+        void onHistogramUpdate(final KeywordDetector detector, final Feature feature, final Map.Entry<String, Integer>[] histogram);
     }
 }
