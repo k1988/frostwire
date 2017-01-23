@@ -69,7 +69,7 @@ public final class KeywordDetector {
         // count consequential terms only
         for (String token : pre_tokens) {
             if (!stopWords.contains(token)) {
-                updateHistogram(feature, token);
+                updateHistogramTokenCount(feature, token);
             }
         }
         numSearchesProcessed++;
@@ -78,13 +78,15 @@ public final class KeywordDetector {
         }
     }
 
-    private void updateHistogram(Feature feature, String token) {
+    /** Cheap */
+    private void updateHistogramTokenCount(Feature feature, String token) {
         HistoHashMap<String> histogram = histograms.get(feature);
         if (histogram != null) {
             histogram.update(token);
         }
     }
 
+    /** Expensive */
     public void requestHistogramUpdate(Feature feature) {
         HistoHashMap<String> histoHashMap = histograms.get(feature);
         if (histoHashMap != null) {
@@ -93,7 +95,8 @@ public final class KeywordDetector {
 
     }
 
-    public void requestHistogramUpdate(final Feature feature, final HistoHashMap<String> histoHashMap) {
+    /** Expensive */
+    private void requestHistogramUpdate(final Feature feature, final HistoHashMap<String> histoHashMap) {
         Runnable r = new Runnable() {
             @Override
             public void run() {

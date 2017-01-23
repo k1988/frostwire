@@ -324,6 +324,8 @@ public final class SearchFragment extends AbstractFragment implements
                 adapter.addResults(results, filteredList);
                 showSearchView(getView());
                 refreshFileTypeCounters(true);
+
+                // MIGHT-DO: Move this method out of this thread, this logic path knows when to update the UI thread.
                 updateKeywordDetector(adapter.getFileType(), results);
             }
         });
@@ -332,7 +334,7 @@ public final class SearchFragment extends AbstractFragment implements
     private void updateKeywordDetector(int fileType, List<? extends SearchResult> results) {
         KeywordDetector keywordDetector = keywordDetectors.get(fileType);
         if (keywordDetector == null) {
-            keywordDetector = new KeywordDetector();
+            keywordDetector = new KeywordDetector(Engine.instance().getThreadPool());
             keywordDetectors.put(fileType, keywordDetector);
         }
         if (keywordDetectorView != null) {

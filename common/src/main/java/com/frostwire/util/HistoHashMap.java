@@ -11,7 +11,7 @@ public class HistoHashMap<K> {
     private final Map<K,Integer> map = new HashMap<>();
 
     /**
-     * Cheap operation
+     * (Cheap operation)
      * @param key
      * @return
      */
@@ -29,7 +29,8 @@ public class HistoHashMap<K> {
     }
 
     /**
-     * Returns the inner map as a sorted Entry array. Expensive operation.
+     * (Expensive operation)
+     * Returns the inner map as a sorted Entry array.
      * @return
      */
     public Entry<K,Integer>[] histogram() {

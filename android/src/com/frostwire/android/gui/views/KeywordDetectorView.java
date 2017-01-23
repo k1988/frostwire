@@ -22,13 +22,18 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.frostwire.android.R;
 import com.frostwire.search.KeywordDetector;
+import com.frostwire.util.Logger;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -40,7 +45,10 @@ import java.util.Map;
 
 public final class KeywordDetectorView extends RelativeLayout implements KeywordDetector.KeywordDetectorListener {
 
+    private Logger LOG = Logger.getLogger(KeywordDetectorView.class);
     private int lastNumberOfSearchesForHistogramRequest;
+    private LinearLayout labelContainer;
+    private Map<String, Button> labelToButton;
 
     public KeywordDetectorView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,12 +65,42 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     }
 
     private void initComponents() {
-        // TODO
+        labelToButton = new HashMap<>();
+        labelContainer = (LinearLayout) findViewById(R.id.view_keyword_detector_keyword_container);
     }
 
-    private void updateKeyword(KeywordDetector.Feature feature, String keyword, int appearances) {
+    private void updateKeyword(final KeywordDetector.Feature feature, final String keyword, int appearances) {
         // update our internal view and placement depending on
         // how many appearances we have.
+
+        // TEMP: for now we'll have everybody together, but perhaps it might make sense
+        // to keep labels grouped by Feature. this way we can have
+        // 2 labels with the same word but which mean something else. e.g. a filename that's the same
+        // as the name of a search engine, or file extension, they would be filtered differently.
+
+        // for now let's just work on search sources
+        Button keywordButton = labelToButton.get(keyword);
+        if (keywordButton == null) {
+            keywordButton = initKeywordFilterTag(feature, keyword);
+        }
+        keywordButton.setText(keyword + " (" + appearances + ")");
+    }
+
+    @NonNull
+    private Button initKeywordFilterTag(final KeywordDetector.Feature feature, final String keyword) {
+        // TODO: A KeywordFilterTag will be a visual component with 3 states (inactive, inclusive-filtering-mode, exclusive-filtering-mode)
+        Button keywordButton;
+        keywordButton = new Button(getContext());
+        keywordButton.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+        keywordButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onKeywordTouched(feature, keyword);
+            }
+        });
+        labelToButton.put(keyword, keywordButton);
+        labelContainer.addView(keywordButton);
+        return keywordButton;
     }
 
     private void removeKeyword(KeywordDetector.Feature feature, String keyword) {
@@ -80,16 +118,19 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         // exclusive (negative)
         // neutral (not in current keyword pipeline)
         // depending on the new state we
+        LOG.info("onKeywordTouched("+feature+", "+ keyword+")");
     }
 
     @Override
     public void onSearchReceived(KeywordDetector detector, int numSearchesProcessed) {
         // for now we'll request a histogram update every 5 searches
+        LOG.info("onSearchReceived(numSearchesProcessed = " + numSearchesProcessed + ")!");
         if (numSearchesProcessed > lastNumberOfSearchesForHistogramRequest && numSearchesProcessed % 5 == 0) {
+            LOG.info("onSearchReceived!");
             detector.setKeywordDetectorListener(this);
             lastNumberOfSearchesForHistogramRequest = numSearchesProcessed;
-            detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_NAME);
-            detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_EXTENSION);
+            //detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_NAME);
+            //detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_EXTENSION);
             detector.requestHistogramUpdate(KeywordDetector.Feature.SEARCH_SOURCE);
         }
     }
@@ -111,14 +152,20 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     }
 
     private void onSearchSourcesUpdate(Map.Entry<String, Integer>[] histogram) {
-        // TODO: Update search sources tags
+        for (Map.Entry<String, Integer> entry : histogram) {
+            updateKeyword(KeywordDetector.Feature.SEARCH_SOURCE, entry.getKey(), entry.getValue());
+        }
     }
 
     private void onFileExtensionsUpdate(Map.Entry<String, Integer>[] histogram) {
-        // TODO: Update file extensions tags
+        for (Map.Entry<String, Integer> entry : histogram) {
+            updateKeyword(KeywordDetector.Feature.FILE_EXTENSION, entry.getKey(), entry.getValue());
+        }
     }
 
     private void onFilenamesUpdate(Map.Entry<String, Integer>[] histogram) {
-        // TODO: Update file name tags
+        for (Map.Entry<String, Integer> entry : histogram) {
+            updateKeyword(KeywordDetector.Feature.FILE_NAME, entry.getKey(), entry.getValue());
+        }
     }
 }
