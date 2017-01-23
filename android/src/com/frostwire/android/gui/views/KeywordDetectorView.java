@@ -46,7 +46,6 @@ import java.util.Map;
 public final class KeywordDetectorView extends RelativeLayout implements KeywordDetector.KeywordDetectorListener {
 
     private Logger LOG = Logger.getLogger(KeywordDetectorView.class);
-    private int lastNumberOfSearchesForHistogramRequest;
     private LinearLayout labelContainer;
     private Map<String, Button> labelToButton;
 
@@ -70,6 +69,7 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     }
 
     private void updateKeyword(final KeywordDetector.Feature feature, final String keyword, int appearances) {
+        LOG.info("KeywordDetectorView.updateKeyword(feature="+feature+", keyword="+keyword+", appearances="+appearances+")");
         // update our internal view and placement depending on
         // how many appearances we have.
 
@@ -100,6 +100,8 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
         });
         labelToButton.put(keyword, keywordButton);
         labelContainer.addView(keywordButton);
+        labelContainer.invalidate();
+        LOG.info("added KeywordFilterTag("+keyword+") to container");
         return keywordButton;
     }
 
@@ -122,50 +124,23 @@ public final class KeywordDetectorView extends RelativeLayout implements Keyword
     }
 
     @Override
-    public void onSearchReceived(KeywordDetector detector, int numSearchesProcessed) {
+    public void onSearchReceived(final KeywordDetector detector, final KeywordDetector.Feature feature, int numSearchesProcessed) {
         // for now we'll request a histogram update every 5 searches
-        LOG.info("onSearchReceived(numSearchesProcessed = " + numSearchesProcessed + ")!");
-        if (numSearchesProcessed > lastNumberOfSearchesForHistogramRequest && numSearchesProcessed % 5 == 0) {
-            LOG.info("onSearchReceived!");
-            detector.setKeywordDetectorListener(this);
-            lastNumberOfSearchesForHistogramRequest = numSearchesProcessed;
-            //detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_NAME);
-            //detector.requestHistogramUpdate(KeywordDetector.Feature.FILE_EXTENSION);
-            detector.requestHistogramUpdate(KeywordDetector.Feature.SEARCH_SOURCE);
+        if (numSearchesProcessed % 5 == 0) {
+            detector.requestHistogramUpdate(feature);
         }
     }
 
     @Override
     public void onHistogramUpdate(final KeywordDetector detector, final KeywordDetector.Feature feature, final Map.Entry<String, Integer>[] histogram) {
+        LOG.info("KeywordDetectorView.onHistogramUpdate(...)");
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if (feature.equals(KeywordDetector.Feature.FILE_NAME)) {
-                    onFilenamesUpdate(histogram);
-                } else if (feature.equals(KeywordDetector.Feature.FILE_EXTENSION)) {
-                    onFileExtensionsUpdate(histogram);
-                } else if (feature.equals(KeywordDetector.Feature.SEARCH_SOURCE)) {
-                    onSearchSourcesUpdate(histogram);
+                for (Map.Entry<String, Integer> entry : histogram) {
+                    updateKeyword(feature, entry.getKey(), entry.getValue());
                 }
             }
         });
-    }
-
-    private void onSearchSourcesUpdate(Map.Entry<String, Integer>[] histogram) {
-        for (Map.Entry<String, Integer> entry : histogram) {
-            updateKeyword(KeywordDetector.Feature.SEARCH_SOURCE, entry.getKey(), entry.getValue());
-        }
-    }
-
-    private void onFileExtensionsUpdate(Map.Entry<String, Integer>[] histogram) {
-        for (Map.Entry<String, Integer> entry : histogram) {
-            updateKeyword(KeywordDetector.Feature.FILE_EXTENSION, entry.getKey(), entry.getValue());
-        }
-    }
-
-    private void onFilenamesUpdate(Map.Entry<String, Integer>[] histogram) {
-        for (Map.Entry<String, Integer> entry : histogram) {
-            updateKeyword(KeywordDetector.Feature.FILE_NAME, entry.getKey(), entry.getValue());
-        }
     }
 }
